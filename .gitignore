@@ -60,6 +60,7 @@ hs_err_pid*
 ## ignoring target file
 target/
 
+/bin
 .settings
 .project
 .classpath
