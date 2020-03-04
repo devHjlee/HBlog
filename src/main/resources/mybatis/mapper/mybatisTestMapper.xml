@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.hblog.mybatis.dao.MybatisTestDAO">
+<mapper namespace="com.hblog.mybatis.mapper.MybatisTestMapper">
 
-    <select id="selectTestList" resultType="hashMap">        
-        SELECT  * FROM USER_TB
+    <select id="selectUserList" resultType="hashMap">
+        SELECT * FROM USER_TB WHERE 1=1
     </select>
+
+    <select id="selectUserListPreparedStatement" parameterType="String" resultType="hashMap">
+        SELECT * FROM USER_TB WHERE NAME = #{psName}
+    </select>
+
+    <select id="selectUserListStatement" parameterType="String" resultType="hashMap">
+        SELECT * FROM USER_TB WHERE NAME = ${sName}
+    </select>
+
+    <insert id="insertTest" parameterType="hashMap">
+        INSERT USER_TB (EMAIL,NAME,START_DT) VALUES (#{email},#{name},#{startDt})
+    </insert>
 
 </mapper>
