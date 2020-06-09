@@ -39,7 +39,7 @@
 			<li class="breadcrumb-item">
                 <a href="/">Dashboard</a>
 			</li>
-			<li class="breadcrumb-item active">PDFBOX Merge Page</li>
+			<li class="breadcrumb-item active">PDFBOX Merge</li>
 		</ol>
 		
 		<!-- Page Content -->
@@ -57,6 +57,7 @@
 		            </span>
 		            <span class="text btn-file">PDF Merge</span>
 		        </a>
+                <input id="fileName" type="text"/> 
 		    </div>
 		    <div class="card-body">파일목록</div>
 		</div>
@@ -66,7 +67,7 @@
 <th:block layout:fragment="pageScript">
     <script type="text/javascript">
     $(document).ready(function(){
-        
+
         //다중파일 업로드 커스터마이징 참고 사이트 https://jsfiddle.net/alexjamesbrown/2nzL9f7g/
         $.fn.fileUploader = function (filesToUpload, sectionIdentifier) {
             var fileIdCounter = 0;
@@ -129,8 +130,7 @@
             e.preventDefault();
 
             var formData = new FormData();
-            //var token = $("meta[name='_csrf']").attr("content");
-            //var header = $("meta[name='_csrf_header']").attr("content");
+
             for (var i = 0, len = filesToUpload.length; i < len; i++) {
                 formData.append("files", filesToUpload[i].file);
             }
@@ -142,12 +142,15 @@
                 processData: false,
                 contentType: false,
                 type: "POST",
-/*                 beforeSend : function(xhr){
-                    xhr.setRequestHeader(header, token);
-                }, */
                 success: function (data) {
-                    alert("DONE");
+                    $("#fileName").val(data.pdfName);
+                    $("#uploadBtn").hide();
+                    $("#downloadBtn").show();
                     filesUploader.clear();
+                    var output = [];
+                    var downloadLink = "<a href='/pdfbox/pdfDownload/"+data.pdfName+"' class='btn btn-success btn-circle btn-sm'></a>";
+                    output.push("<li><strong>", data.pdfName, "</strong> &nbsp; &nbsp;", downloadLink, "</li> ");
+                    $(".card-body").append(output.join(""));
                 },
                 error: function (data) {
                     alert("ERROR - " + data.responseText);
@@ -157,6 +160,7 @@
 
     });
 
+    
     function validateFileExtension(fileName){
         var fileExtension = fileName.split('.').pop().toLowerCase();
         if("pdf" == fileExtension){

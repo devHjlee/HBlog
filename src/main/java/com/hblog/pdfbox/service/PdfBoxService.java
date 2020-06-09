@@ -2,6 +2,9 @@ package com.hblog.pdfbox.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,6 +18,8 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -29,6 +34,7 @@ public class PdfBoxService {
     
     @Value("${file.pdfMergePath}")
     private String filePdfMergePath;
+
     /**
      * 
      * @param multipartHttpServletRequest
@@ -40,16 +46,13 @@ public class PdfBoxService {
         List<MultipartFile> files = multipartHttpServletRequest.getFiles("files");
         Map<String,String> result = new HashMap<String,String>();
 
-        UUID uuid = UUID.randomUUID();
+        //UUID uuid = UUID.randomUUID();
 
         String filePath = fileTempPath+new SimpleDateFormat("yyyyMMddHmsS").format(new Date())+"\\";
         //상대경로
         //String savePath = multipartHttpServletRequest.getSession().getServletContext().getRealPath(filePdfMergePath);
         //절대경로
-        String savePath = filePdfMergePath;
-        String pdfName = uuid+"_Merge.pdf";
-
-        logger.info("savePath:"+savePath);
+        String pdfName = files.get(0).getOriginalFilename()+"_병합.pdf";
 
         PDDocument pdfDoc = null;
         PDFMergerUtility PDFmerger = new PDFMergerUtility();
@@ -93,5 +96,27 @@ public class PdfBoxService {
         }
 
         return result;
+    }
+
+    /**
+     * 
+     * @param multipartHttpServletRequest
+     * @return 
+     * @throws Exception
+     */
+    public Resource loadFileAsResource(String fileName) throws Exception {
+        logger.info("pdfDownload Start!");
+        try {
+            Path filePath = Paths.get(filePdfMergePath+fileName);
+            Resource resource = new UrlResource(filePath.toUri());
+            
+            if(resource.exists()) {
+                return resource;
+            }else {
+                throw new Exception(fileName + " 파일을 찾을 수 없습니다.");
+            }
+        }catch(MalformedURLException e) {
+            throw new Exception(fileName + " 파일을 찾을 수 없습니다.", e);
+        }
     }
 }

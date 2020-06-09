@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.hblog.pdfbox.service.PdfBoxService;
@@ -51,28 +52,28 @@ public class PdfBoxController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/pdfbox/pdfDownload", method = RequestMethod.GET, produces = "application/json;charset=utf-8")
-    public ResponseEntity<Resource> pdfDownload(@PathVariable String fileName, HttpServletRequest request) throws IOException {
+    @RequestMapping(value = "/pdfbox/pdfDownload/{fileName:.+}")
+    public ResponseEntity<Resource> pdfDownload(@PathVariable String fileName,HttpServletRequest request) throws Exception {
 
         // Load file as Resource
-       Resource resource = service.loadFileAsResource(fileName);
+        Resource resource = pdfService.loadFileAsResource(fileName);
 
-       // Try to determine file's content type
-       String contentType = null;
-       try {
-           contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
-       } catch (IOException ex) {
-           logger.info("Could not determine file type.");
-       }
+        // Try to determine file's content type
+        String contentType = null;
+        try {
+            contentType = request.getServletContext().getMimeType(resource.getFile().getAbsolutePath());
+        } catch (IOException ex) {
+            logger.info("Could not determine file type.");
+        }
 
-       // Fallback to the default content type if type could not be determined
-       if(contentType == null) {
-           contentType = "application/octet-stream";
-       }
+        // Fallback to the default content type if type could not be determined
+        if(contentType == null) {
+            contentType = "application/octet-stream";
+        }
 
-       return ResponseEntity.ok()
-               .contentType(MediaType.parseMediaType(contentType))
-               .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-               .body(resource);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
     }
 }
