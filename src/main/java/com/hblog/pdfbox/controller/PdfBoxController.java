@@ -16,8 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.hblog.pdfbox.service.PdfBoxService;
@@ -74,5 +76,21 @@ public class PdfBoxController {
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
+    }
+
+    @RequestMapping(value = "/pdfbox/pdfDelete", method = RequestMethod.POST, produces = "application/json;charset=utf-8")
+    public ResponseEntity<Map<String,String>> pdfDelete(@RequestBody Map<String,String> param) throws IOException {
+
+        Map<String,String> result = new HashMap<String,String>();
+        String pdfName = param.get("pdfName");
+        try {
+            result = pdfService.pdfDelete(pdfName);
+        } catch (Exception e) {
+            result.put("result", "fail");
+            result.put("error", e.getMessage());
+            return new ResponseEntity<>(result,HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }

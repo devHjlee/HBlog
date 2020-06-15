@@ -10,7 +10,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.pdfbox.io.MemoryUsageSetting;
 import org.apache.pdfbox.multipdf.PDFMergerUtility;
@@ -118,5 +117,37 @@ public class PdfBoxService {
         }catch(MalformedURLException e) {
             throw new Exception(fileName + " 파일을 찾을 수 없습니다.", e);
         }
+    }
+
+    /**
+     * 
+     * @param multipartHttpServletRequest
+     * @return 
+     * @throws Exception
+     */
+    public Map<String,String> pdfDelete(String pdfName) throws Exception {
+        logger.info("pdfDelete Start!");
+        Map<String,String> result = new HashMap<String,String>();
+
+        //UUID uuid = UUID.randomUUID();
+
+        //상대경로
+        //String savePath = multipartHttpServletRequest.getSession().getServletContext().getRealPath(filePdfMergePath);
+        //절대경로
+        try {
+            File deleteFile = new File(filePdfMergePath+pdfName);
+            
+            if(deleteFile.exists()) {
+                deleteFile.delete();
+                result.put("message","success");
+            }else {
+                throw new Exception(pdfName + " 파일을 찾을 수 없습니다.");
+            }
+        }catch(MalformedURLException e) {
+            throw new Exception(pdfName + " 파일을 찾을 수 없습니다.", e);
+        }
+
+
+        return result;
     }
 }

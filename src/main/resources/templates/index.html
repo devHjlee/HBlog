@@ -5,41 +5,32 @@
 
 <head>
     <title>Main</title>
+    <link rel="stylesheet" href="https://uicdn.toast.com/tui-grid/latest/tui-grid.css" />
+    <script src="https://uicdn.toast.com/tui-grid/latest/tui-grid.js"></script>
+
 </head>
 
 <th:block layout:fragment="content">
     <!-- Begin Page Content -->
     <div class="container-fluid">
         <!-- Page Heading -->
-        <h1 class="h3 mt-2 mb-2 text-gray-800">寃뚯떆�뙋</h1>
-        <p class="mb-4">�씪諛� 寃뚯떆�뙋</p>
+        <h1 class="h3 mt-2 mb-2 text-gray-800">게시판</h1>
 
         <!-- DataTales Example -->
         <div class="card shadow mb-4">
             <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">寃뚯떆湲�</h6>
+                <h6 class="m-0 font-weight-bold text-primary">그리드테스트</h6>
             </div>
             <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                        <thead>
-                        <tr>
-                            <th>湲� 踰덊샇</th>
-                            <th>湲� �젣紐�</th>
-                            <th>湲� �궡�슜</th>
-                            <th>湲��벖�씠</th>
-                            <th>湲� 踰덊샇</th>
-                        </tr>
-                        </thead>
-                    </table>
-                </div>
+                <div id="grid"></div>
             </div>
+            <!-- <div id="grid"></div> -->
         </div>
 
         <div class="row">
             <div class="col align-self-end">
                 <a class="btn btn-secondary btn-icon-split float-right" th:href="@{/boards/form}">
-                    <span class="text">湲��벐湲�</span>
+                    <span class="text">버튼</span>
                 </a>
             </div>
         </div>
@@ -48,90 +39,59 @@
 
     </div>
 </th:block>
-<!-- board.html 怨좎쑀 script 異붽� -->
+
 <th:block layout:fragment="pageScript">
-<!-- 
+ 
     <script>
         $(document).ready(function () {
 
-            // DataTable
-            var tables = $('#dataTable').DataTable({
-                // �븳 �럹�씠吏��뿉 湲곕낯�쑝濡� 蹂댁뿬以� �빆紐� �닔
-                pageLength: 10,
-                // �럹�씠吏� 泥섎━ �뿬遺�
-                paginate: true,
-                pagingType: "full_numbers",
-                // �븳 �럹�씠吏��뿉 蹂댁뿬以� �빆紐� �닔 蹂�寃쎄��뒫�뿬遺�
-                bLengthChange: false,
-                //"bLengthChange" 由ъ뒪�듃 �빆紐⑹쓣 援ъ꽦�븷 �샃�뀡
-                // lengthMenu: [3, 5, 10, 20],
-                // �옄�룞 而щ읆 �룺�쓣 怨꾩궛�븯�뿬 諛섏쁺
-                bAutoWidth: true,
-                // 濡쒕뵫 �몴�떆 �뿬遺�
-                processing: true,
-                // �빆紐⑹쓽 �젙�젹 �궗�슜�뿬遺�
-                ordering: false,
-                // 洹몃━�뱶 �궡�뿉�꽌 �씠猷⑥뼱吏��뒗 紐⑤뱺 �긽�솴�뱾(寃��깋, �럹�씠吏�, �젙�젹 �벑)�뿉 ���븳 泥섎━瑜� �꽌踰꾩륫�뿉�꽌 �닔�뻾 �뿬遺�
-                bServerSide: true,
-                // 湲�濡쒕쾶 searching 湲곕뒫
-                // searching: true,
-
-                // ajax: '/boards/lists',
-
-                ajax: {
-                    "url": "/boards/lists",
-                    "type": "GET",
-                    "data": function (d) {
-                        d.page = (d.start / d.length) + 1;
-                    },
-                    "dataFilter": function (data) {
-                        var json = jQuery.parseJSON(data);
-                        json.data = json.content;
-                        json.recordsTotal = json.totalElements;
-                        json.recordsFiltered = json.totalElements;
-                        return JSON.stringify(json);
-                    }
-                },
-                columns: [
-                    {data: "boardSeq", name: "boardSeq", title: "湲�踰덊샇"},
-                    {data: "boardTitle", name: "boardTitle", title: "湲��젣紐�"},
-                    {data: "boardContents", name: "boardContents", title: "湲��궡�슜"},
-                    {data: "member.memberName", name: "memberName", title: "湲��벖�씠"},
-                    {data: "member.memberMobile", name: "memberMobile", title: "湲��벖�씠 踰덊샇"}
-                ],
-                columnDefs: [
-                    {
-                        "targets": [0, 1, 2, 3, 4],
-                        "visible": true
-                    }
-                ],
-                "language": {
-                    "emptyTable": "�뜲�씠�꽣媛� �뾾�뼱�슂.",
-                    "lengthMenu": "�럹�씠吏��떦 _MENU_ 媛쒖뵫 蹂닿린",
-                    "info": "�쁽�옱 _START_ - _END_ / _TOTAL_嫄�",
-                    "infoEmpty": "�뜲�씠�꽣 �뾾�쓬",
-                    "infoFiltered": "( _MAX_嫄댁쓽 �뜲�씠�꽣�뿉�꽌 �븘�꽣留곷맖 )",
-                    "search": "寃��깋: ",
-                    "zeroRecords": "�씪移섑븯�뒗 �뜲�씠�꽣媛� �뾾�뼱�슂.",
-                    "loadingRecords": "濡쒕뵫以�...",
-                    "processing":     "�옞�떆留� 湲곕떎�젮 二쇱꽭�슂...",
-                    "paginate": {
-                        "first":"泥섏쓬",
-                        "next": "�떎�쓬",
-                        "previous": "�씠�쟾",
-                        "last":"留덉�留�"
-                    }
-                }
-            });
+	        const data = [
+	        	  {
+	        	    id: '10012',
+	        	    name: 'Seoul',
+	        	    value: 'South Korea'
+	        	  },
+	        	  {
+	        	    id: '10013',
+	        	    city: 'Tokyo',
+	        	    country: 'Japan'    
+	        	  },
+	        	  {
+	        	    id: '10014',
+	        	    city: 'London',
+	        	    country: 'England'
+	        	  },
+	        	  {
+	        	    id: '10015',
+	        	    city: 'Ljubljana',
+	        	    country: 'Slovenia'
+	        	  },
+	        	  {
+	        	    id: '10016',
+	        	    city: 'Reykjavik',
+	        	    country: 'Iceland'
+	        	  }
+	        	];
+	        // GRID 를 생성한다.
+	        var grid = new tui.Grid( {
+	            el: document.getElementById('grid'),
+	            columns: [
+	                {
+	                    header: '이름',
+	                    name: 'name'
+	                },
+	                {
+	                    header: '나이',
+	                    name: 'value',
+	                    editor: 'text'
+	                }
+	            ],
+	            data: data
+	        } );
 
 
-            // DataTable Row Click
-            $("#dataTable tbody").on('click', 'tr', function () {
-                var data = tables.row(this).data();
-                window.location = "/boards/" + data.boardSeq;
-            });
         });
-    </script> -->
+    </script>
 
 </th:block>
 
