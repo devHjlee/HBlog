@@ -67,10 +67,8 @@
 <th:block layout:fragment="pageScript">
     <script type="text/javascript">
     $(document).ready(function(){
-        var sss = "\"aaaa\"";
-    	
-    	console.log(sss);
-        //다중파일 업로드 커스터마이징 참고 사이트 https://jsfiddle.net/alexjamesbrown/2nzL9f7g/
+
+    	//다중파일 업로드 커스터마이징 참고 사이트 https://jsfiddle.net/alexjamesbrown/2nzL9f7g/
         $.fn.fileUploader = function (filesToUpload, sectionIdentifier) {
             var fileIdCounter = 0;
             this.closest(".mb-4").change(function (evt) {
@@ -165,7 +163,6 @@
         $(document).on("click",".removePdf", function (e) {
         	e.preventDefault();
         	var data = {pdfName:$("#fileName").val()};
-        	console.log(this);
 
             $.ajax({
                 url: "/pdfbox/pdfDelete",
