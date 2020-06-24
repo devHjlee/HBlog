@@ -10,8 +10,8 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hblog.chat.dto.WebSockChatMessage;
 import com.hblog.chat.dto.WebSockChatRoom;
-import com.hblog.chat.model.WebSockChatModel;
 import com.hblog.chat.service.WebSockChatService;
 
 @Component
@@ -30,8 +30,8 @@ public class WebSockChatHandler extends TextWebSocketHandler {
         logger.info("payload {}", payload);
         //TextMessage textMessage = new TextMessage("Welcome chatting sever~^^");
         //session.sendMessage(textMessage);
-        WebSockChatModel chatMessage = objectMapper.readValue(payload, WebSockChatModel.class);
-        WebSockChatRoom room = chatService.findRoomById(chatMessage.getRoomId());
+        WebSockChatMessage chatMessage = objectMapper.readValue(payload, WebSockChatMessage.class);
+        WebSockChatRoom room = chatService.findRoomById(chatMessage.getChatRoomId());
         room.handleActions(session, chatMessage, chatService);
     }
 

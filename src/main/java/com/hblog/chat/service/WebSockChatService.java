@@ -20,26 +20,26 @@ import com.hblog.chat.dto.WebSockChatRoom;
 public class WebSockChatService {
 
     private ObjectMapper objectMapper = new ObjectMapper();
-    private Map<String, WebSockChatRoom> chatRooms;
+    private Map<String, WebSockChatRoom> chatRoomMap;
 
     @PostConstruct
     private void init() {
-        chatRooms = new LinkedHashMap<>();
+        chatRoomMap = new LinkedHashMap<>();
     }
 
     public List<WebSockChatRoom> findAllRoom() {
-        List chatRooms = new ArrayList<>(chatRooms.values());
+        List chatRooms = new ArrayList<>(chatRoomMap.values());
         Collections.reverse(chatRooms);
         return chatRooms;
     }
 
     public WebSockChatRoom findRoomById(String roomId) {
-        return chatRooms.get(roomId);
+        return chatRoomMap.get(roomId);
     }
 
     public WebSockChatRoom createChatRoom(String name){
         WebSockChatRoom chatRoom = WebSockChatRoom.create(name);
-        chatRooms.put(chatRoom.getRoomId(), chatRoom);
+        chatRoomMap.put(chatRoom.getRoomId(), chatRoom);
         return chatRoom;
     }
 

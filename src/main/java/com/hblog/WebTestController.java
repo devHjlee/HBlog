@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class WebTestController {
 
-    @GetMapping("/")
+/*    @GetMapping("/")
     public String webTest(Model model) {
         Map<String,String> testVO = new HashMap<String,String>();
         testVO.put("id","dlgudwo11");
@@ -22,7 +22,7 @@ public class WebTestController {
         model.addAttribute("testModel", testVO);
         model.addAttribute("message","Spring Boot Main");
         return "index";
-    }
+    }*/
     @PostMapping("/api/test")
     @ResponseBody 
     public List<String> apiTest(Model model) {

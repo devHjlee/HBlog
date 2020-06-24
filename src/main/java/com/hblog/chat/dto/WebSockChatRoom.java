@@ -9,7 +9,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hblog.chat.model.WebSockChatModel;
 import com.hblog.chat.service.WebSockChatService;
 
 public class WebSockChatRoom {
@@ -26,15 +25,15 @@ public class WebSockChatRoom {
         return chatRoom;
     }
 
-    public void handleActions(WebSocketSession session, WebSockChatModel chatMessage, WebSockChatService chatService) {
-        if (chatMessage.getType().equals(WebSockChatModel.MessageType.ENTER)) {
+    public void handleActions(WebSocketSession session, WebSockChatMessage chatMessage, WebSockChatService chatService) {
+        if (chatMessage.getType().equals(WebSockChatMessage.MessageType.ENTER)) {
             sessions.add(session);
-            chatMessage.setMessage(chatMessage.getSender() + "님이 입장했습니다.");
-        }else if (chatMessage.getType().equals(WebSockChatModel.MessageType.LEAVE)) {
-            sessions.add(session);
-            chatMessage.setMessage(chatMessage.getSender() + "님이 퇴장했습니다.");
+            chatMessage.setMessage(chatMessage.getWriter() + "님이 입장했습니다.");
+        }else if (chatMessage.getType().equals(WebSockChatMessage.MessageType.LEAVE)) {
+            sessions.remove(session);
+            chatMessage.setMessage(chatMessage.getWriter() + "님이 퇴장했습니다.");
         }else {
-            chatMessage.setMessage(chatMessage.getSender() + ":" + chatMessage.getMessage());
+            chatMessage.setMessage(chatMessage.getWriter() + ":" + chatMessage.getMessage());
         }
         sendMessage(chatMessage, chatService);
         try {
@@ -45,7 +44,7 @@ public class WebSockChatRoom {
         }
     }
 
-    private void send(WebSockChatModel chatMessage, WebSockChatService chatService) throws IOException {
+    private void send(WebSockChatMessage chatMessage, WebSockChatService chatService) throws IOException {
         TextMessage textMessage = new TextMessage(objectMapper.
                                     writeValueAsString(chatMessage.getMessage()));
         for(WebSocketSession sess : sessions){
