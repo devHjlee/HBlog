@@ -4,6 +4,7 @@ public class UserResponse {
 
 	String name;
 	String content;
+	String sessionId;
 	MessageType mtype;
 	GroupType gtype;
 	String time;
@@ -30,18 +31,20 @@ public class UserResponse {
 		this.content = content;
 	}
 
-	public UserResponse(String name, String content, MessageType mtype, GroupType gtype) {
+	public UserResponse(String name, String content, MessageType mtype, GroupType gtype, String sessionId) {
 		this.name = name;
 		this.content = content;
 		this.mtype = mtype;
 		this.gtype = gtype;
+		this.sessionId = sessionId;
 	}
 
-	public UserResponse(String name, String content, MessageType mtype, GroupType gtype, String time) {
+	public UserResponse(String name, String content, MessageType mtype, GroupType gtype,String sessionId, String time) {
 		this.name = name;
 		this.content = content;
 		this.mtype = mtype;
 		this.gtype = gtype;
+		this.sessionId = sessionId;
 		this.time = time;
 	}
 
@@ -77,7 +80,15 @@ public class UserResponse {
 		return name;
 	}
 
-	public String getContent() {
+	public String getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public String getContent() {
 		return content;
 	}
 

@@ -45,7 +45,7 @@ public class WebSocketEventListener {
 
 		if (username != null) {
 
-			UserResponse userResponse = new UserResponse(username, USER_LEFT, LEAVE, PUBLIC);
+			UserResponse userResponse = new UserResponse(username, USER_LEFT, LEAVE, PUBLIC,headerAccessor.getSessionId());
 			simpMessagingTemplate.convertAndSend("/topic/message", userResponse);
 
 		}

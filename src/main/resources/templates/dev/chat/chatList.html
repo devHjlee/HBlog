@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout/default">
+<head>
+    <meta charset="UTF-8">
+    <title>채팅 서비스</title>
+    <style>
+	.form-control{
+	    width: 500px;
+	    display:inline;
+	}
+    .aa{
+        width: 100%;
+    }
+    </style>
+</head>
+<th:block layout:fragment="content">
+    <!-- Begin Page Content -->
+    <div class="container-fluid">
+
+        <!-- Breadcrumbs-->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="/">Dashboard</a>
+            </li>
+            <li class="breadcrumb-item active">채팅</li>
+        </ol>
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <input type="text" class="form-control form-control-user" id="roomName" placeholder="New RoomName...">
+                <a class = "btn btn-primary pull-right" href ="javascript:void(0);" onclick="createRoom();">새로 만들기</a>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>방이름</th>
+                      <th>입장버튼</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+	                <tr th:each="room : ${rooms}">
+	                    <td th:text="${room.name}"></td>
+	                    <td>
+                          <a href ="javascript:void(0);" th:attr="onclick=|showModal('${room.roomId}')|"  class="btn btn-primary btn-icon-split">
+                            <span class="icon text-white-50">
+                              <i class="fas fa-check"></i>
+                            </span>
+                            <span class="text">참여</span>
+                          </a>
+<!-- 			              <a th:href = "@{/chat/{id} (id = ${room.roomId})}" class="btn btn-primary btn-icon-split">
+			                <span class="icon text-white-50">
+			                  <i class="fas fa-check"></i>
+			                </span>
+			                <span class="text">참여</span>
+			              </a> -->
+	                    </td>
+	                </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+        </div>
+    </div>
+  <div class="modal fade" th:id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">대화명을 입력해주세요</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">
+        <input type="hidden" id="enterRoom" value=""/>
+        <input type="text" class="form-control form-control-user aa" id="userName" placeholder="Name...">
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+          <a class="btn btn-primary" href ="javascript:void(0);" onclick="enterRoom();">참여하기</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+<th:block layout:fragment="pageScript">
+    <script th:inline = "javascript">
+    function showModal(a){
+    	console.log(a);
+    	$("#enterRoom").val(a);
+    	$("#logoutModal").modal('show');
+    }
+    function enterRoom(){
+        location.href="/chat/"+$("#enterRoom").val()+"/"+$("#userName").val();
+    }
+    function createRoom(){
+    	if("" == $("#roomName").val()){
+    	    alert('방이름을 입력해주세요.');
+    	    return;
+    	}
+    	location.href="/newChat/"+$("#roomName").val();
+    }
+
+
+    </script>
+
+</th:block>
+</html>

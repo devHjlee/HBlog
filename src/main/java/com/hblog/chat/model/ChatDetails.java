@@ -1,5 +1,6 @@
 package com.hblog.chat.model;
 
+
 public class ChatDetails {
 
 	public static int count;
