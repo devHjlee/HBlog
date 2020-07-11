@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorator="layout/default">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>PDF Merge</title>
+    <style>
+    .btn-file {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-file input[type=file] {
+        position: absolute;
+        top: 0;
+        right: 0;
+        min-width: 100%;
+        min-height: 100%;
+        font-size: 100px;
+        text-align: right;
+        filter: alpha(opacity=0);
+        opacity: 0;
+        outline: none;
+        background: white;
+        cursor: inherit;
+        display: block;
+    }
+    </style>
+</head>
+
+<th:block layout:fragment="content">
+    <!-- Begin Page Content -->
+    <div class="container-fluid">
+
+		<!-- Breadcrumbs-->
+		<ol class="breadcrumb">
+			<li class="breadcrumb-item">
+                <a href="/">Dashboard</a>
+			</li>
+			<li class="breadcrumb-item active">PXL API TEST</li>
+		</ol>
+		
+		<!-- Page Content -->
+		<div class="card shadow mb-4" id="files1">
+		    <div class="card-header py-3">
+		        <a href="#" class="btn btn-primary btn-icon-split">
+		            <span class="icon text-white-50">
+		                <i class="fas fa-arrow-right"></i>
+		            </span>
+		            <span class="text btn-file">파일첨부<input type="file" name="files1" multiple /></span>
+		        </a>
+		        <a id="apiBtn" href="#" class="btn btn-primary btn-icon-split">
+		            <span class="icon text-white-50">
+		                <i class="fas fa-check"></i>
+		            </span>
+		            <span class="text btn-file">API CALL</span>
+		        </a>
+                <input id="fileName" type="hidden"/> 
+		    </div>
+		    <div class="card-body">결과</div>
+		</div>
+    </div>
+</th:block>
+
+<th:block layout:fragment="pageScript">
+    <script type="text/javascript">
+    $(document).ready(function(){
+
+    	//다중파일 업로드 커스터마이징 참고 사이트 https://jsfiddle.net/alexjamesbrown/2nzL9f7g/
+        $.fn.fileUploader = function (filesToUpload, sectionIdentifier) {
+            var fileIdCounter = 0;
+            this.closest(".mb-4").change(function (evt) {
+                var output = [];
+                for (var i = 0; i < evt.target.files.length; i++) {
+                    fileIdCounter++;
+
+                    var file = evt.target.files[i];
+                    var fileName = evt.target.files[i].name;
+                    var fileId = sectionIdentifier + fileIdCounter;
+
+                    filesToUpload.push({
+                        id: fileId,
+                        file: file
+                    });
+                    //escape(file.name) 인코딩
+                    var removeLink = "<a href=\"#\" class=\"removeFile btn btn-danger btn-circle btn-sm\" data-fileid=\"" + fileId + "\"><i class=\"fas fa-trash\"></i></a>";
+                    output.push("<li><strong>", file.name, "</strong> - ", file.size, " bytes. &nbsp; &nbsp; ", removeLink, "</li> ");
+                };
+                $(this).children(".card-body").append(output.join(""));
+                //reset the input to null - nice little chrome bug!
+                evt.target.value = null;
+            });
+
+            $(this).on("click", ".removeFile", function (e) {
+                e.preventDefault();
+
+                var fileId = $(this).parent().children("a").data("fileid");
+
+                // loop through the files array and check if the name of that file matches FileName
+                // and get the index of the match
+                for (var i = 0; i < filesToUpload.length; ++i) {
+                    if (filesToUpload[i].id === fileId)
+                        filesToUpload.splice(i, 1);
+                }
+
+                $(this).parent().remove();
+            });
+
+            this.clear = function () {
+                filesToUpload.length = 0;
+                $(this).children(".card-body").empty();
+            }
+
+            return this;
+        };
+
+        var filesToUpload = [];
+        var filesUploader = $("#files1").fileUploader(filesToUpload, "files1");
+
+        $("#apiBtn").click(function (e) {
+            e.preventDefault();
+			var itemData = [];
+            var formData = new FormData();
+
+            for (var i = 0, len = filesToUpload.length; i < len; i++) {
+                formData.append("file", filesToUpload[i].file);
+            }
+            $.ajax({
+                url: "https://api.pxl.ai/v1/detect",
+                data: formData,
+                cache : false,
+                processData: false,
+                contentType: false,
+                type: "POST",
+                beforeSend : function(xhr){
+                    xhr.setRequestHeader("apikey", "LGET0c687035324f14c95e8ec80af46b5e436049190e9a44af2ac81d872a");
+                },
+                success: function (data) {
+                	console.log(data);
+                	console.log(data.list);
+            		//ID 자르기
+            		var resultId = data.list[0].id.split("_");
+            		console.log('resultId:'+resultId);
+            		pxlAnalyzeCall(resultId[0]+"&lang=en");
+                	if(data.list.length > 0){
+                		
+                		for(var i = 0; i < data.list.length; i++){
+                			console.log(data.list[i].id);
+                			console.log(data.list[i].category.code); //코드값으로 주기때문에 코드에 대한 정보가 필요함
+                			console.log(data.list[i].gender.code);
+                			console.log(data.list[i].score);
+                			 var output = [];
+                			output.push("<li><strong>", data.list[i].id, "</strong> - ITEM", data.list[i].category.code, " &nbsp; &nbsp;GENDER:",data.list[i].gender.code," 퍼센트:", (data.list[i].score*100), "%</li> ");
+                			$(".card-body").append(output.join(""));
+                			var resultCode = data.list[i].gender.code+data.list[i].category.code;
+                			var resultUrl = data.list[i].id+"?gender="+data.list[i].gender.code+"&genders="+data.list[i].gender.code+"&category="+resultCode+"&count=34&mode=1";
+                			console.log('resultCode:'+resultCode);
+                			pxlSearchCall(resultUrl,resultCode);
+                		}
+                	}
+                },
+                error: function (data) {
+                    alert("ERROR - " + data.responseText);
+                }
+            });
+        });
+
+    });
+    
+    
+	function pxlAnalyzeCall(url){
+        $.ajax({
+            url: "https://api.pxl.ai/v1/analyze?url=https://img.pxl.ai/"+url,
+            cache : false,
+            processData: false,
+            contentType: false,
+            type: "GET",
+            beforeSend : function(xhr){
+                xhr.setRequestHeader("apikey", "LGET0c687035324f14c95e8ec80af46b5e436049190e9a44af2ac81d872a");
+            },
+            success: function (data) {
+            	console.log(data);
+             	console.log(data.list);
+            	if(data.list.length > 0){
+            		for(var i = 0; i < data.list.length; i++){
+            			if(data.list[i].attributes.length > 0){
+            				for(var j = 0; j < data.list[i].attributes.length; j++){
+            					console.log('Attribute:'+data.list[i].attributes[j].type+':'+data.list[i].attributes[j].en);
+                   			 	var output = [];
+	                 			output.push("<li><strong>", data.list[i].id, "</strong> - ATTRIBUTES &nbsp; &nbsp;:", data.list[i].attributes[j].type, " &nbsp; &nbsp;/",data.list[i].attributes[j].en,"</li> ");
+	                 			$(".card-body").append(output.join(""));
+            				}
+            				
+            			}
+            		}
+            	}
+            },
+            error: function (data) {
+                alert("ERROR - " + data.responseText);
+            }
+        });
+	}
+    
+    
+	function pxlSearchCall(url,code){
+        $.ajax({
+            url: "https://api.pxl.ai/v1/search/"+url,
+            cache : false,
+            processData: false,
+            contentType: false,
+            type: "GET",
+            beforeSend : function(xhr){
+                xhr.setRequestHeader("apikey", "LGET0c687035324f14c95e8ec80af46b5e436049190e9a44af2ac81d872a");
+            },
+            success: function (data) {
+
+            	if(data.list[Object.keys(data.list)].length > 0){
+            		for(var i = 0; i < data.list[Object.keys(data.list)].length; i++){
+						console.log(data.list[Object.keys(data.list)][i].name);
+                   	 	console.log(data.list[Object.keys(data.list)][i].price);
+                   	 	console.log(data.list[Object.keys(data.list)][i].image_url);
+                   	 	console.log(data.list[Object.keys(data.list)][i].product_url); 
+             			 var output = [];
+            			output.push("<li><strong>",  "</strong> - ", data.list[Object.keys(data.list)][i].name, " &nbsp; &nbsp; ", data.list[Object.keys(data.list)][i].price, "</li> ");
+            			output.push("<li><strong>",  "</strong> - <img src='", data.list[Object.keys(data.list)][i].image_url, "'/> &nbsp; &nbsp; ", data.list[Object.keys(data.list)][i].product_url, "</li> ");
+            			$(".card-body").append(output.join("")); 
+            			
+            		}
+            	}
+            },
+            error: function (data) {
+                alert("ERROR - " + data.responseText);
+            }
+        });
+	}
+
+
+
+    </script>
+
+</th:block>
+
+</html>
