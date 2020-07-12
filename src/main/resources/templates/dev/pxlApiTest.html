@@ -66,6 +66,7 @@
 
 <th:block layout:fragment="pageScript">
     <script type="text/javascript">
+    var dataSource = [];
     $(document).ready(function(){
 
     	//다중파일 업로드 커스터마이징 참고 사이트 https://jsfiddle.net/alexjamesbrown/2nzL9f7g/
@@ -121,7 +122,7 @@
 
         $("#apiBtn").click(function (e) {
             e.preventDefault();
-			var itemData = [];
+			
             var formData = new FormData();
 
             for (var i = 0, len = filesToUpload.length; i < len; i++) {
@@ -140,13 +141,21 @@
                 success: function (data) {
                 	console.log(data);
                 	console.log(data.list);
+                	
             		//ID 자르기
             		var resultId = data.list[0].id.split("_");
             		console.log('resultId:'+resultId);
-            		pxlAnalyzeCall(resultId[0]+"&lang=en");
+            		
                 	if(data.list.length > 0){
                 		
                 		for(var i = 0; i < data.list.length; i++){
+                			var itemData = {};
+                			itemData.id = data.list[i].id;
+                			itemData.categoryCode = data.list[i].category.code;
+                			itemData.genderCode = data.list[i].gender.code;
+                			itemData.score = data.list[i].score;
+                			itemData.SumCode = data.list[i].category.code + data.list[i].gender.code;
+                			dataSource.push(itemData);
                 			console.log(data.list[i].id);
                 			console.log(data.list[i].category.code); //코드값으로 주기때문에 코드에 대한 정보가 필요함
                 			console.log(data.list[i].gender.code);
@@ -160,6 +169,7 @@
                 			pxlSearchCall(resultUrl,resultCode);
                 		}
                 	}
+                	pxlAnalyzeCall(resultId[0]+"&lang=en");
                 },
                 error: function (data) {
                     alert("ERROR - " + data.responseText);
@@ -171,7 +181,8 @@
     
     
 	function pxlAnalyzeCall(url){
-        $.ajax({
+        console.log(dataSource);
+		$.ajax({
             url: "https://api.pxl.ai/v1/analyze?url=https://img.pxl.ai/"+url,
             cache : false,
             processData: false,
